@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class LSTMModel(nn.Module):
 
-    def __init__(self, input_size, output_size, hidden_dim, num_layers, dropout):
+    def __init__(self, input_size, output_size, hidden_dim, num_layers, batch_size, dropout):
         super(LSTMModel, self).__init__()
         self.output_size = output_size
         self.hidden_dim = hidden_dim
@@ -16,13 +16,15 @@ class LSTMModel(nn.Module):
                             dropout=dropout,
                             batch_first=True)
 
+        self.hidden_state, self.cell_state = self.init_hidden(batch_size=batch_size)
         # self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_dim, output_size)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, hidden):
-        lstm_out, hidden = self.lstm(x, hidden)
-
+    def forward(self, x):
+        lstm_out, hidden = self.lstm(x, (self.hidden_state, self.cell_state))
+        self.hidden_state = hidden[0].detach()
+        self.cell_state = hidden[1].detach()
         # lstm_out = lstm_out.contiguous().view(-1, self.hidden_dim)
 
         # out = self.dropout(lstm_out)
@@ -34,5 +36,4 @@ class LSTMModel(nn.Module):
     def init_hidden(self, batch_size):
         hidden_state = torch.randn(self.num_layers, batch_size, self.hidden_dim)
         cell_state = torch.randn(self.num_layers, batch_size, self.hidden_dim)
-        hidden = (hidden_state, cell_state)
-        return hidden
+        return hidden_state, cell_state
