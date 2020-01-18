@@ -31,9 +31,9 @@ class LSTMModel(nn.Module):
         out = self.fc(lstm_out)
         out = self.sigmoid(out)
 
-        return out, hidden
+        return out[:, -1, :], hidden
 
     def init_hidden(self, batch_size):
-        hidden_state = torch.randn(self.num_layers, batch_size, self.hidden_dim)
-        cell_state = torch.randn(self.num_layers, batch_size, self.hidden_dim)
+        hidden_state = torch.randn(self.num_layers, batch_size, self.hidden_dim).double()
+        cell_state = torch.randn(self.num_layers, batch_size, self.hidden_dim).double()
         return hidden_state, cell_state
