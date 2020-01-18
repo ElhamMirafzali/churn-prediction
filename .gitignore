@@ -2,3 +2,5 @@
 /data1/
 /.spyproject/
 /.idea
+/trained_models/
+/__pycache__/
