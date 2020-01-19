@@ -4,3 +4,4 @@
 /.idea
 /trained_models/
 /__pycache__/
+/data_split/
