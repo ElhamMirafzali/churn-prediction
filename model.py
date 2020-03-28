@@ -22,14 +22,16 @@ class LSTMModel(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        # print("x shape = ", x.shape)
         lstm_out, hidden = self.lstm(x, (self.hidden_state, self.cell_state))
         self.hidden_state = hidden[0].detach()
         self.cell_state = hidden[1].detach()
         # lstm_out = lstm_out.contiguous().view(-1, self.hidden_dim)
-
         # out = self.dropout(lstm_out)
-        out = self.fc(lstm_out)
-        out = self.sigmoid(out)
+
+        fc_out = self.fc(lstm_out)
+        # apply sigmoid function to fc_out to get the probability
+        out = self.sigmoid(fc_out)
 
         return out[:, -1, :], hidden
 
