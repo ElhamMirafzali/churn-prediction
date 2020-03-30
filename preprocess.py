@@ -9,11 +9,12 @@ def preprocess_transactions(data_path):
     data = data.fillna(0)
 
     # normalization
-    data[['payment_method_id',
-          'payment_plan_days',
+    data[['payment_plan_days',
           'plan_list_price',
-          'actual_amount_paid']] = preprocessing.normalize(data[['payment_method_id',
-                                                                 'payment_plan_days',
+          'actual_amount_paid']] = preprocessing.normalize(data[['payment_plan_days',
                                                                  'plan_list_price',
                                                                  'actual_amount_paid']])
+    # one hot encoding
+    data = pd.get_dummies(data, columns=["payment_method_id"], prefix=["payment_method"])
+
     return data
