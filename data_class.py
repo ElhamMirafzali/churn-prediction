@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data.dataset import Dataset
 import pandas as pd
-from preprocess import preprocess_transactions
+from preprocess import preprocess_transactions, avg_time_between_trans
 
 
 class SequentialDataset(Dataset):
@@ -13,8 +13,12 @@ class SequentialDataset(Dataset):
     def __getitem__(self, index: int):
         dataset: pd.DataFrame = self.transactions.loc[self.transactions['msno'] == self.users[index]]
         dataset = dataset.sort_values('transaction_date')
+        dataset.reset_index(drop=True, inplace=True)
         target = torch.tensor((self.targets.loc[self.targets['msno'] == self.users[index]]['is_churn']).squeeze(),
                               dtype=torch.double)
+
+        # add a column: average time between transactions
+        dataset = avg_time_between_trans(dataset)
 
         # 'msno', 'transaction_date', 'membership_expire_date' are removed
         dataset = dataset[dataset.columns.difference(['msno', 'transaction_date', 'membership_expire_date'])]
