@@ -21,6 +21,30 @@ def preprocess_transactions(data_path):
     return data
 
 
+def preprocess_logs(data_path):
+    data = pd.read_csv(data_path)
+
+    # filling missing values with 0
+    data = data.fillna(0)
+
+    # normalization
+    data[['num_25',
+          'num_50',
+          'num_75',
+          'num_985',
+          'num_100',
+          'num_unq',
+          'total_secs']] = preprocessing.normalize(data[['num_25',
+                                                         'num_50',
+                                                         'num_75',
+                                                         'num_985',
+                                                         'num_100',
+                                                         'num_unq',
+                                                         'total_secs']])
+
+    return data
+
+
 def avg_time_between_trans(dataset):
     for i, row in dataset.iterrows():
         if i == 0:
