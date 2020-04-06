@@ -1,5 +1,5 @@
 from two_branches_LSTM.model import TwoBranchesLSTMModel
-from data_class import SequentialDataset
+from two_branches_LSTM.data_class import SequentialDataset
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils import data
@@ -16,14 +16,14 @@ num_layers_lstm = 2
 dropout = 0.1
 batch_size = 1
 
-train_dataset = SequentialDataset(transactions_path='balanced_data_split/train_transactions.csv',
-                                  logs_path='balanced_data_split/train_logs.csv',
-                                  targets_path='balanced_data_split/train_labels_selected.csv')
+train_dataset = SequentialDataset(transactions_path='../balanced_data_split/train_transactions.csv',
+                                  logs_path='../balanced_data_split/train_logs.csv',
+                                  targets_path='../balanced_data_split/train_labels_selected.csv')
 # train_dataset = SequentialDataset(transactions_path='data/transactions_in_january_reduced.csv',
 #                                   targets_path='data/february_labels_reduced.csv')
-test_dataset = SequentialDataset(transactions_path='balanced_data_split/test_transactions.csv',
-                                 logs_path='balanced_data_split/test_logs.csv',
-                                 targets_path='balanced_data_split/test_labels.csv')
+test_dataset = SequentialDataset(transactions_path='../balanced_data_split/test_transactions.csv',
+                                 logs_path='../balanced_data_split/test_logs.csv',
+                                 targets_path='../balanced_data_split/test_labels.csv')
 
 train_data_loader: data.DataLoader = data.DataLoader(dataset=train_dataset,
                                                      batch_size=batch_size,
@@ -80,7 +80,7 @@ for epoch in range(num_epochs):
         predicted = model(padded_inputs1, padded_inputs2)
         # last_prediction = predicted1[:, -1, :]
 
-        bce_loss = criterion(predicted[0], target)
+        bce_loss = criterion(predicted, target)
 
         optimizer.zero_grad()
 

@@ -16,7 +16,7 @@ class SequentialDataset(Dataset):
         data_trans: pd.DataFrame = self.transactions.loc[self.transactions['msno'] == self.users[index]]
         data_trans = data_trans.sort_values('transaction_date')
         data_trans.reset_index(drop=True, inplace=True)
-        target = torch.tensor((self.targets.loc[self.targets['msno'] == self.users[index]]['is_churn']).squeeze(),
+        target = torch.tensor([(self.targets.loc[self.targets['msno'] == self.users[index]]['is_churn']).squeeze()],
                               dtype=torch.double)
 
         # add a column: average time between transactions

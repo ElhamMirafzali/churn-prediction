@@ -57,9 +57,12 @@ class TwoBranchesLSTMModel(nn.Module):
 
         # print("self.concat_hidden.shape = ", concat_hidden.shape)
 
-        out_fc1 = F.relu(self.fc1(concat_hidden))
-        out_fc2 = F.relu(self.fc2(out_fc1))
-        out_fc3 = F.relu(self.fc3(out_fc2))
+        # out_fc1 = F.relu(self.fc1(concat_hidden))
+        # out_fc2 = F.relu(self.fc2(out_fc1))
+        # out_fc3 = F.relu(self.fc3(out_fc2))
+        out_fc1 = self.fc1(concat_hidden)
+        out_fc2 = self.fc2(out_fc1)
+        out_fc3 = self.fc3(out_fc2)
         out = self.sigmoid(out_fc3)
 
         # apply sigmoid function to fc_out to get the probability
