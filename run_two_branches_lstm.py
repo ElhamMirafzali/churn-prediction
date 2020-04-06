@@ -16,14 +16,14 @@ num_layers_lstm = 2
 dropout = 0.1
 batch_size = 1
 
-train_dataset = SequentialDataset(transactions_path='../balanced_data_split/train_transactions.csv',
-                                  logs_path='../balanced_data_split/train_logs.csv',
-                                  targets_path='../balanced_data_split/train_labels_selected.csv')
+train_dataset = SequentialDataset(transactions_path='balanced_data_split/train_transactions.csv',
+                                  logs_path='balanced_data_split/train_logs.csv',
+                                  targets_path='balanced_data_split/train_labels_selected.csv')
 # train_dataset = SequentialDataset(transactions_path='data/transactions_in_january_reduced.csv',
 #                                   targets_path='data/february_labels_reduced.csv')
-test_dataset = SequentialDataset(transactions_path='../balanced_data_split/test_transactions.csv',
-                                 logs_path='../balanced_data_split/test_logs.csv',
-                                 targets_path='../balanced_data_split/test_labels.csv')
+test_dataset = SequentialDataset(transactions_path='balanced_data_split/test_transactions.csv',
+                                 logs_path='balanced_data_split/test_logs.csv',
+                                 targets_path='balanced_data_split/test_labels.csv')
 
 train_data_loader: data.DataLoader = data.DataLoader(dataset=train_dataset,
                                                      batch_size=batch_size,
