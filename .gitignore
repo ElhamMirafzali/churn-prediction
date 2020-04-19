@@ -1,0 +1,8 @@
+/data/
+/data1/
+/.spyproject/
+/.idea
+/trained_models/
+/__pycache__/
+/data_split/
+/balanced_data_split/
