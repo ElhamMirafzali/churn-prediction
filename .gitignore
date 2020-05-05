@@ -10,3 +10,5 @@
 /y_percentage.py
 /new_data/
 /one_branch_LSTM/__pycache__/
+*.py[cod]
+*$py.class
