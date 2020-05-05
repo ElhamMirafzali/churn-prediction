@@ -1,14 +1,13 @@
 import torch
 from torch.utils.data.dataset import Dataset
 import pandas as pd
-from preprocess import preprocess_logs
 
 
 class LogsSequentialDataset(Dataset):
-    def __init__(self, logs_path, targets_path):
+    def __init__(self, logs, targets_path):
         self.targets = (pd.read_csv(targets_path)).sample(frac=1)
         self.users = self.targets['msno']
-        self.logs = preprocess_logs(logs_path)
+        self.logs = logs
 
     def __getitem__(self, index: int):
         target = torch.tensor([(self.targets.loc[self.targets['msno'] == self.users[index]]['is_churn']).squeeze()],
