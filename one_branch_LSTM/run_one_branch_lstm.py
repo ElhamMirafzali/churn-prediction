@@ -10,7 +10,7 @@ from one_branch_LSTM.model import OneBranchLSTMModel
 from calculate_metrics import calculate_metrics
 from preprocess import preprocess_logs
 
-input_size = 7  # logs
+input_size = 12  # logs
 # input_size = 30  # transactions
 output_size = 1
 hidden_dim_lstm = 32
@@ -28,8 +28,8 @@ batch_size = 1
 #                                              targets_path='../new_data/selected/test_labels.csv')
 
 # logs
-train_logs = preprocess_logs('../new_data/selected2/train_logs.csv')
-test_logs = preprocess_logs('../new_data/selected2/test_logs.csv')
+train_logs = preprocess_logs('../new_data/selected2/train_logs_with_extracted_features.csv')
+test_logs = preprocess_logs('../new_data/selected2/test_logs_with_extracted_features.csv')
 train_dataset = LogsSequentialDataset(logs=train_logs,
                                       targets_path='../new_data/selected2/train_labels.csv')
 test_dataset = LogsSequentialDataset(logs=test_logs,
@@ -64,7 +64,7 @@ criterion = nn.BCELoss()
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
 # optimizer = optim.SGD(params=model.parameters(), lr=1e-2, momentum=0.9, nesterov=True, weight_decay=0.01)
 # optimizer = optim.RMSprop(params=model.parameters(), lr=lr, alpha=0.99, eps=1e-08, weight_decay=0.8, momentum=0.01)
-
+#
 # model.train()
 #
 # total_loss = []
@@ -132,7 +132,7 @@ optimizer = optim.Adam(params=model.parameters(), lr=lr)
 #
 # torch.save(model.state_dict(), "../trained_models/LSTM_model.pt")
 # print('Trained Model Saved')
-#
+
 print('\n\n Testing...')
 model.eval()
 total_test_loss = 0.0
