@@ -34,13 +34,23 @@ def preprocess_logs(data_path):
           'num_985',
           'num_100',
           'num_unq',
-          'total_secs']] = preprocessing.normalize(data[['num_25',
-                                                         'num_50',
-                                                         'num_75',
-                                                         'num_985',
-                                                         'num_100',
-                                                         'num_unq',
-                                                         'total_secs']])
+          'total_secs',
+          'days_since_last_log_of_25',
+          'days_since_last_log_of_50',
+          'days_since_last_log_of_75',
+          'days_since_last_log_of_985',
+          'days_since_last_log_of_100']] = preprocessing.normalize(data[['num_25',
+                                                                         'num_50',
+                                                                         'num_75',
+                                                                         'num_985',
+                                                                         'num_100',
+                                                                         'num_unq',
+                                                                         'total_secs',
+                                                                         'days_since_last_log_of_25',
+                                                                         'days_since_last_log_of_50',
+                                                                         'days_since_last_log_of_75',
+                                                                         'days_since_last_log_of_985',
+                                                                         'days_since_last_log_of_100']])
 
     return data
 
