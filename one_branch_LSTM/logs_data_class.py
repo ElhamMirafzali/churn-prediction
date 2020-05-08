@@ -6,7 +6,8 @@ import pandas as pd
 class LogsSequentialDataset(Dataset):
     def __init__(self, logs, targets_path):
         self.targets = (pd.read_csv(targets_path)).sample(frac=1)
-        self.users = self.targets['msno']
+        # self.users = self.targets['msno']
+        self.users = logs.msno.unique()
         self.logs = logs
 
     def __getitem__(self, index: int):
