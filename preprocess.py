@@ -21,8 +21,10 @@ def preprocess_transactions(data_path):
     return data
 
 
-def preprocess_logs(data_path):
-    data = pd.read_csv(data_path)
+def preprocess_logs(train_path, test_path):
+    train_logs = pd.read_csv(train_path)
+    test_logs = pd.read_csv(test_path)
+    data = pd.concat([train_logs, test_logs], ignore_index=True)
 
     # filling missing values with 0
     data = data.fillna(0)
@@ -42,7 +44,12 @@ def preprocess_logs(data_path):
                                                          'num_unq',
                                                          'total_secs']])
 
-    return data
+    train_logs_normalized = data[0:len(train_logs)]
+    test_logs_normalized = data[len(train_logs):]
+
+    train_logs_normalized.to_csv('new_data/selected2/train_logs_preprocessed.csv', index=False)
+    test_logs_normalized.to_csv('new_data/selected2/test_logs_preprocessed.csv', index=False)
+    return train_logs_normalized, test_logs_normalized
 
 
 def avg_time_between_trans(dataset):
@@ -59,3 +66,7 @@ def avg_time_between_trans(dataset):
     # normalize new column
     dataset[['avg_time_between_trans']] = preprocessing.normalize(dataset[['avg_time_between_trans']])
     return dataset
+
+
+# preprocess_logs(train_path='new_data/selected2/train_logs.csv',
+#                 test_path='new_data/selected2/test_logs.csv')
