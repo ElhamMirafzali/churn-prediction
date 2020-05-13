@@ -78,6 +78,33 @@ def find_users_with_logs(users_path, logs_path, destination_path):
 
 
 #####################################################################
+# MEMBERS
+#####################################################################
+def find_members(members_path, users_path, destination_path):
+    users = pd.read_csv(users_path)
+    for chunk in pd.read_csv(members_path, chunksize=100000):
+        selected_members = common_column(chunk, users, 'msno')
+        if not os.path.isfile(destination_path):
+            selected_members.to_csv(destination_path, index=False)
+        else:
+            selected_members.to_csv(destination_path, mode='a', index=False, header=False)
+
+
+#####################################################################
+# MEMBERS
+#####################################################################
+
+# ------------------------ find members data
+
+# find_members(members_path='data/members_preprocessed.csv', users_path='new_data/selected2/test_labels.csv',
+#              destination_path='new_data/selected2/test_members.csv')
+# the reverse is necessary
+# find_members(source_path='new_data/selected2/test_labels.csv', users_path='new_data/selected2/test_members.csv',
+#              destination_path='new_data/selected2/test_labels_2.csv')
+
+# find_members(members_path='data/members_preprocessed.csv', users_path='new_data/selected2/train_labels.csv',
+#              destination_path='new_data/selected2/train_members.csv')
+#####################################################################
 
 # ------------------------ combine two transactions data
 
