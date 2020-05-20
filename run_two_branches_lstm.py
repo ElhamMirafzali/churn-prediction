@@ -22,34 +22,36 @@ dropout = 0.1
 batch_size = 1
 
 # transactions
-train_transactions = pd.read_csv('new_data/selected2/train_transactions_with_extracted_features_preprocessed.csv')
-test_transactions = pd.read_csv('new_data/selected2/test_transactions_with_extracted_features_preprocessed.csv')
+# train_transactions = pd.read_csv(
+#     'new_data/selected2/new_normalization/train_transactions_with_extracted_features_preprocessed.csv')
+test_transactions = pd.read_csv(
+    'new_data/selected2/new_normalization/test_transactions_with_extracted_features_preprocessed.csv')
 
 # logs
-train_logs = pd.read_csv('new_data/selected2/train_logs_with_extracted_features_preprocessed.csv')
-test_logs = pd.read_csv('new_data/selected2/test_logs_with_extracted_features_preprocessed.csv')
+# train_logs = pd.read_csv('new_data/selected2/new_normalization/train_logs_with_extracted_features_preprocessed.csv')
+test_logs = pd.read_csv('new_data/selected2/new_normalization/test_logs_with_extracted_features_preprocessed.csv')
 
 # members
-train_members = pd.read_csv('new_data/selected2/train_members.csv')
+# train_members = pd.read_csv('new_data/selected2/train_members.csv')
 test_members = pd.read_csv('new_data/selected2/test_members.csv')
 
 # targets
-train_targets = pd.read_csv('new_data/selected2/train_labels.csv')
+# train_targets = pd.read_csv('new_data/selected2/train_labels.csv')
 test_targets = pd.read_csv('new_data/selected2/test_labels.csv')
 
-train_dataset = SequentialDataset(transactions=train_transactions,
-                                  logs=train_logs,
-                                  members=train_members,
-                                  targets=train_targets)
+# train_dataset = SequentialDataset(transactions=train_transactions,
+#                                   logs=train_logs,
+#                                   members=train_members,
+#                                   targets=train_targets)
 
 test_dataset = SequentialDataset(transactions=test_transactions,
                                  logs=test_logs,
                                  members=test_members,
-                                 targets=test_targets)
+                                 targets=test_targets.loc[0:9000, :])
 
-train_data_loader: data.DataLoader = data.DataLoader(dataset=train_dataset,
-                                                     batch_size=batch_size,
-                                                     shuffle=True)
+# train_data_loader: data.DataLoader = data.DataLoader(dataset=train_dataset,
+#                                                      batch_size=batch_size,
+#                                                      shuffle=True)
 
 test_data_loader: data.DataLoader = data.DataLoader(dataset=test_dataset,
                                                     batch_size=batch_size,
@@ -73,81 +75,81 @@ print_every = 1000
 
 # loss function = binary cross entropy
 criterion = nn.BCELoss()
-optimizer = optim.Adam(params=model.parameters(), lr=lr)
-
-model.train()
-
-total_loss = []
-total_corrects = 0
-
-for epoch in range(num_epochs):
-    running_loss = 0.0
-    epoch_loss = 0.0
-    batch_corrects = 0
-    targets = []
-    predictions = []
-    bin_predictions = []
-    for i, (trans_data, logs_data, members_data, target) in enumerate(train_data_loader, 0):
-
-        padded_inputs1 = nn.utils.rnn.pad_sequence(sequences=trans_data,
-                                                   batch_first=True,
-                                                   padding_value=0)
-
-        padded_inputs2 = nn.utils.rnn.pad_sequence(sequences=logs_data,
-                                                   batch_first=True,
-                                                   padding_value=0)
-
-        padded_inputs3 = nn.utils.rnn.pad_sequence(sequences=members_data,
-                                                   batch_first=True,
-                                                   padding_value=0)
-
-        predicted = model(padded_inputs1, padded_inputs2, padded_inputs3)
-
-        bce_loss = criterion(predicted, target.view(-1, 1))
-
-        optimizer.zero_grad()
-
-        bce_loss.backward()
-
-        optimizer.step()
-
-        running_loss += bce_loss.item()
-        epoch_loss += bce_loss.item()
-
-        targets.append(target.item())
-        predictions.append(predicted.item())
-
-        # Accuracy
-        predicted_label = float(predicted.item() >= 0.5)
-        bin_predictions.append(predicted_label)
-        if predicted_label == target:
-            batch_corrects += 1
-
-        if i % print_every == 0 and i > 0:
-            print('[%d, %5d] loss: %.7f' % (epoch + 1, i + 1, running_loss / print_every))
-            print('real: ', str(target.item()), '----- predicted: ', str(predicted.item()))
-            running_loss = 0.0
-            print()
-
-    total_loss.append((epoch_loss / len(train_data_loader)))
-
-    total_corrects += batch_corrects
-    auc, pr_auc, average_precision, average_recall = calculate_metrics(targets=targets, predictions=predictions,
-                                                                       bin_predictions=bin_predictions)
-
-    print('\nEpoch %d/%d, Accuracy: %.3f' % (epoch + 1, num_epochs, batch_corrects / len(train_data_loader)))
-    print('\nEpoch %d/%d, Loss : %.7f' % (epoch + 1, num_epochs, (epoch_loss / len(train_data_loader))))
-    print('\nEpoch %d/%d, AUC: %.3f' % (epoch + 1, num_epochs, auc))
-    print('\nEpoch %d/%d, PR-AUC: %.3f' % (epoch + 1, num_epochs, pr_auc))
-    print('\nEpoch %d/%d, Precision: %.3f' % (epoch + 1, num_epochs, average_precision))
-    print('\nEpoch %d/%d, Recall: %.3f' % (epoch + 1, num_epochs, average_recall), '\n')
-
-print('Finished Training')
-print('\nTrain Loss : %.7f' % statistics.mean(total_loss))
-print('\nTrain Accuracy : %.3f' % (total_corrects / (len(train_data_loader) * num_epochs)), '\n')
-
-torch.save(model.state_dict(), "trained_models/LSTM_model.pt")
-print('Trained Model Saved')
+# optimizer = optim.Adam(params=model.parameters(), lr=lr)
+#
+# model.train()
+#
+# total_loss = []
+# total_corrects = 0
+#
+# for epoch in range(num_epochs):
+#     running_loss = 0.0
+#     epoch_loss = 0.0
+#     batch_corrects = 0
+#     targets = []
+#     predictions = []
+#     bin_predictions = []
+#     for i, (trans_data, logs_data, members_data, target) in enumerate(train_data_loader, 0):
+#
+#         padded_inputs1 = nn.utils.rnn.pad_sequence(sequences=trans_data,
+#                                                    batch_first=True,
+#                                                    padding_value=0)
+#
+#         padded_inputs2 = nn.utils.rnn.pad_sequence(sequences=logs_data,
+#                                                    batch_first=True,
+#                                                    padding_value=0)
+#
+#         padded_inputs3 = nn.utils.rnn.pad_sequence(sequences=members_data,
+#                                                    batch_first=True,
+#                                                    padding_value=0)
+#
+#         predicted = model(padded_inputs1, padded_inputs2, padded_inputs3)
+#
+#         bce_loss = criterion(predicted, target.view(-1, 1))
+#
+#         optimizer.zero_grad()
+#
+#         bce_loss.backward()
+#
+#         optimizer.step()
+#
+#         running_loss += bce_loss.item()
+#         epoch_loss += bce_loss.item()
+#
+#         targets.append(target.item())
+#         predictions.append(predicted.item())
+#
+#         # Accuracy
+#         predicted_label = float(predicted.item() >= 0.5)
+#         bin_predictions.append(predicted_label)
+#         if predicted_label == target:
+#             batch_corrects += 1
+#
+#         if i % print_every == 0 and i > 0:
+#             print('[%d, %5d] loss: %.7f' % (epoch + 1, i + 1, running_loss / print_every))
+#             print('real: ', str(target.item()), '----- predicted: ', str(predicted.item()))
+#             running_loss = 0.0
+#             print()
+#
+#     total_loss.append((epoch_loss / len(train_data_loader)))
+#
+#     total_corrects += batch_corrects
+#     auc, pr_auc, average_precision, average_recall = calculate_metrics(targets=targets, predictions=predictions,
+#                                                                        bin_predictions=bin_predictions)
+#
+#     print('\nEpoch %d/%d, Accuracy: %.3f' % (epoch + 1, num_epochs, batch_corrects / len(train_data_loader)))
+#     print('\nEpoch %d/%d, Loss : %.7f' % (epoch + 1, num_epochs, (epoch_loss / len(train_data_loader))))
+#     print('\nEpoch %d/%d, AUC: %.3f' % (epoch + 1, num_epochs, auc))
+#     print('\nEpoch %d/%d, PR-AUC: %.3f' % (epoch + 1, num_epochs, pr_auc))
+#     print('\nEpoch %d/%d, Precision: %.3f' % (epoch + 1, num_epochs, average_precision))
+#     print('\nEpoch %d/%d, Recall: %.3f' % (epoch + 1, num_epochs, average_recall), '\n')
+#
+# print('Finished Training')
+# print('\nTrain Loss : %.7f' % statistics.mean(total_loss))
+# print('\nTrain Accuracy : %.3f' % (total_corrects / (len(train_data_loader) * num_epochs)), '\n')
+#
+# torch.save(model.state_dict(), "trained_models/LSTM_model.pt")
+# print('Trained Model Saved')
 
 print('\n Testing...')
 model.load_state_dict(torch.load("trained_models/LSTM_model.pt"))
