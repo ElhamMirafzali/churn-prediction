@@ -96,14 +96,16 @@ def find_members(members_path, users_path, destination_path):
 
 # ------------------------ find members data
 
-# find_members(members_path='data/members_preprocessed.csv', users_path='new_data/selected2/test_labels.csv',
-#              destination_path='new_data/selected2/test_members.csv')
+# find_members(members_path='new_data/selected2/members_age_filtered_preprocessed.csv',
+#              users_path='new_data/selected2/test_members.csv',
+#              destination_path='new_data/selected2/test_members2.csv')
 # the reverse is necessary
-# find_members(source_path='new_data/selected2/test_labels.csv', users_path='new_data/selected2/test_members.csv',
-#              destination_path='new_data/selected2/test_labels_2.csv')
+# find_members(members_path='new_data/selected2/train_labels.csv', users_path='new_data/selected2/train_members.csv',
+#              destination_path='new_data/selected2/train_labels_2.csv')
 
-# find_members(members_path='data/members_preprocessed.csv', users_path='new_data/selected2/train_labels.csv',
-#              destination_path='new_data/selected2/train_members.csv')
+# find_members(members_path='new_data/selected2/members_age_filtered_preprocessed.csv',
+#              users_path='new_data/selected2/train_members.csv',
+#              destination_path='new_data/selected2/train_members2.csv')
 #####################################################################
 
 # ------------------------ combine two transactions data

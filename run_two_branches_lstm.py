@@ -8,8 +8,8 @@ from two_branches_LSTM.model import TwoBranchesLSTMModel
 from two_branches_LSTM.data_class import SequentialDataset
 from calculate_metrics import calculate_metrics
 
-input_size_transactions = 33
-input_size_logs = 12
+input_size_transactions = 32
+input_size_logs = 7
 input_size_members = 41
 output_size = 1
 hidden_dim_lstm = 32
@@ -23,13 +23,13 @@ batch_size = 1
 
 # transactions
 # train_transactions = pd.read_csv(
-#     'new_data/selected2/new_normalization/train_transactions_with_extracted_features_preprocessed.csv')
+#     'new_data/selected2/new_normalization/train_transactions_preprocessed.csv')
 test_transactions = pd.read_csv(
-    'new_data/selected2/new_normalization/test_transactions_with_extracted_features_preprocessed.csv')
+    'new_data/selected2/new_normalization/test_transactions_preprocessed.csv')
 
 # logs
-# train_logs = pd.read_csv('new_data/selected2/new_normalization/train_logs_with_extracted_features_preprocessed.csv')
-test_logs = pd.read_csv('new_data/selected2/new_normalization/test_logs_with_extracted_features_preprocessed.csv')
+# train_logs = pd.read_csv('new_data/selected2/new_normalization/train_logs_preprocessed.csv')
+test_logs = pd.read_csv('new_data/selected2/new_normalization/test_logs_preprocessed.csv')
 
 # members
 # train_members = pd.read_csv('new_data/selected2/train_members.csv')
@@ -150,7 +150,7 @@ criterion = nn.BCELoss()
 #
 # torch.save(model.state_dict(), "trained_models/LSTM_model.pt")
 # print('Trained Model Saved')
-
+#
 print('\n Testing...')
 model.load_state_dict(torch.load("trained_models/LSTM_model.pt"))
 model.eval()
