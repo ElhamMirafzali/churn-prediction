@@ -113,6 +113,69 @@ def preprocess_members(data_path):
     return data
 
 
+def preprocess_static_data(train_path, test_path):
+    train_logs = pd.read_csv(train_path)
+    test_logs = pd.read_csv(test_path)
+    data = pd.concat([train_logs, test_logs], ignore_index=True)
+
+    # filling missing values with 0
+    data = data.fillna(0)
+
+    # normalization
+    data[['num_25_mean',
+          'num_50_mean',
+          'num_75_mean',
+          'num_985_mean',
+          'num_100_mean',
+          'num_unq_mean',
+          'total_secs_mean',
+          'num_25_sum',
+          'num_50_sum',
+          'num_75_sum',
+          'num_985_sum',
+          'num_100_sum',
+          'num_unq_sum',
+          'total_secs_sum',
+          'num_25_max',
+          'num_50_max',
+          'num_75_max',
+          'num_985_max',
+          'num_100_max',
+          'num_unq_max',
+          'total_secs_max',
+          'subscription_ratio']] = preprocessing.normalize(data[['num_25_mean',
+                                                                 'num_50_mean',
+                                                                 'num_75_mean',
+                                                                 'num_985_mean',
+                                                                 'num_100_mean',
+                                                                 'num_unq_mean',
+                                                                 'total_secs_mean',
+                                                                 'num_25_sum',
+                                                                 'num_50_sum',
+                                                                 'num_75_sum',
+                                                                 'num_985_sum',
+                                                                 'num_100_sum',
+                                                                 'num_unq_sum',
+                                                                 'total_secs_sum',
+                                                                 'num_25_max',
+                                                                 'num_50_max',
+                                                                 'num_75_max',
+                                                                 'num_985_max',
+                                                                 'num_100_max',
+                                                                 'num_unq_max',
+                                                                 'total_secs_max',
+                                                                 'subscription_ratio']], axis=0)
+
+    train_logs_normalized = data[0:len(train_logs)]
+    test_logs_normalized = data[len(train_logs):]
+
+    train_logs_normalized.to_csv(
+        'new_data/selected2/extra_features/train_static_preprocessed.csv', index=False)
+    test_logs_normalized.to_csv(
+        'new_data/selected2/extra_features/test_static_preprocessed.csv', index=False)
+    return train_logs_normalized, test_logs_normalized
+
+
 # preprocess_logs(train_path='new_data/selected2/extra_features/train_logs_extracted_features.csv',
 #                 test_path='new_data/selected2/extra_features/test_logs_extracted_features.csv')
 
@@ -120,3 +183,6 @@ def preprocess_members(data_path):
 
 # preprocess_transactions(train_path='new_data/selected2/extra_features/train_transactions_extracted_features.csv',
 #                         test_path='new_data/selected2/extra_features/test_transactions_extracted_features.csv')
+
+# preprocess_static_data(train_path='new_data/selected2/extra_features/train_static.csv',
+#                        test_path='new_data/selected2/extra_features/test_static.csv')

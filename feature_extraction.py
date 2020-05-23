@@ -287,12 +287,12 @@ def extract_days_since_registration(logs_df, members_df):
 # extract_features_of_logs(input_df=data_frame, start_date=20170301,
 #                  destination_path='new_data/selected2/test_logs_with_extracted_features.csv')
 
-# extract_static_data_of_logs(data_frame, destination_path='new_data/selected2/test_logs_static_data.csv')
+# extract_static_data_of_logs(data_frame, destination_path='new_data/selected2/test_logs_static.csv')
 
 
 # transactions
 
-# transactions_path = 'new_data/selected2/test_transactions_extracted_features.csv'
+# transactions_path = 'new_data/selected2/extra_features/train_transactions_extracted_features.csv'
 # trans_data_frame: pd.DataFrame = get_data_frame(transactions_path)
 # print("Transactions data frame is ready.")
 
@@ -304,4 +304,4 @@ def extract_days_since_registration(logs_df, members_df):
 # new_logs.to_csv('new_data/selected2/test_logs_extracted_features.csv', index=False)
 
 # new_transactions = subscription_ratio(trans_data_frame)
-# new_transactions.to_csv('new_data/selected2/test_transactions_static.csv')
+# new_transactions.to_csv('new_data/selected2/extra_features/train_transactions_static.csv', index=False)
