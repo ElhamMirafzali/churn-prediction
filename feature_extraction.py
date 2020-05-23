@@ -13,6 +13,13 @@ def get_data_frame(path):
     return df
 
 
+def intersect(df1, df2, col):
+    i1 = df1.set_index(col).index
+    i2 = df2.set_index(col).index
+    new_df = df1[i1.isin(i2)]
+    return new_df
+
+
 def subtract_dates(d1, d2):
     date1 = str(d1)
     date2 = str(d2)
@@ -21,111 +28,8 @@ def subtract_dates(d1, d2):
     return (date1 - date2).days
 
 
-def avg_time_between_trans(dataset):
-    for i, row in dataset.iterrows():
-        if i == 0:
-            dataset.loc[i, 'avg_time_between_trans'] = 0
-        else:
-            date1 = str(dataset.loc[i - 1, 'transaction_date'])
-            date2 = str(dataset.loc[i, 'transaction_date'])
-            date1 = date(year=int(date1[0:4]), month=int(date1[4:6]), day=int(date1[6:8]))
-            date2 = date(year=int(date2[0:4]), month=int(date2[4:6]), day=int(date2[6:8]))
-            dataset.loc[i, 'avg_time_between_trans'] = (((date2 - date1).days + (
-                    dataset.loc[i - 1, 'avg_time_between_trans'] * (i - 1))) / i)
-
-    return dataset
-
-
-def extract_avg_time_between_trans(input_df, destination_path):
-    users = input_df.msno.unique()
-    user_index = 0
-    for user in users:
-        sequence = input_df.loc[input_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
-
-        # average time between transactions
-        trans_data = avg_time_between_trans(sequence)
-        if not os.path.isfile(destination_path):
-            trans_data.to_csv(destination_path, index=False)
-        else:
-            trans_data.to_csv(destination_path, mode='a', index=False, header=False)
-
-        user_index += 1
-        if user_index % 500 == 0:
-            print('Number of completed users = %d' % user_index)
-
-
-def extract_days_since_registration(trans_df, members_df, logs_df):
-    # transactions
-    users = trans_df.msno.unique()
-    new_trans_df = pd.DataFrame()
-    for user in users:
-        trans_sequence = trans_df.loc[trans_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
-        member_data = members_df.loc[members_df['msno'] == user].reset_index(drop=True)
-        for i in range(len(trans_sequence)):
-            date1 = str(trans_sequence.loc[i, 'transaction_date'])
-            date2 = str(member_data.loc[0, 'registration_init_time'])
-            date1 = date(year=int(date1[0:4]), month=int(date1[4:6]), day=int(date1[6:8]))
-            date2 = date(year=int(date2[0:4]), month=int(date2[4:6]), day=int(date2[6:8]))
-
-            trans_sequence.loc[i, 'days_since_registration'] = (date1 - date2).days
-
-        new_trans_df = new_trans_df.append(trans_sequence, ignore_index=True)
-
-    # logs
-    users = logs_df.msno.unique()
-    new_logs_df = pd.DataFrame()
-    for user in users:
-        logs_sequence = logs_df.loc[logs_df['msno'] == user].sort_values('date').reset_index(drop=True)
-        member_data = members_df.loc[members_df['msno'] == user].reset_index(drop=True)
-        for i in range(len(logs_sequence)):
-            date1 = str(logs_sequence.loc[i, 'date'])
-            date2 = str(member_data.loc[0, 'registration_init_time'])
-            date1 = date(year=int(date1[0:4]), month=int(date1[4:6]), day=int(date1[6:8]))
-            date2 = date(year=int(date2[0:4]), month=int(date2[4:6]), day=int(date2[6:8]))
-
-            logs_sequence.loc[i, 'days_since_registration'] = (date1 - date2).days
-
-        new_logs_df = new_logs_df.append(logs_sequence, ignore_index=True)
-
-    return new_trans_df, new_logs_df
-
-
-def extract_days_since_last_cancellation(trans_df):
-    users = trans_df.msno.unique()
-    new_trans_df = pd.DataFrame()
-    for user in users:
-        sequence = trans_df.loc[trans_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
-        is_cancel_seen = False
-
-        for i in range(len(sequence)):
-            if (sequence.loc[i, 'is_cancel'] == 1) and (is_cancel_seen is False):
-                sequence.loc[i, 'days_since_last_is_cancel'] = math.nan
-                is_cancel_seen = True
-                sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
-            elif (sequence.loc[i, 'is_cancel'] == 1) and (is_cancel_seen is True):
-                sequence.loc[i, 'days_since_last_is_cancel'] = subtract_dates(sequence.loc[i, 'transaction_date'],
-                                                                              sequence.loc[
-                                                                                  i - 1, 'temp_date'])
-                sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
-            elif sequence.loc[i, 'is_cancel'] == 0:
-                if i == 0:
-                    sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
-                    sequence.loc[i, 'days_since_last_is_cancel'] = subtract_dates(sequence.loc[i, 'transaction_date'],
-                                                                                  sequence.loc[
-                                                                                      i, 'temp_date'])
-                else:
-                    sequence.loc[i, 'temp_date'] = sequence.loc[i - 1, 'temp_date']
-                    sequence.loc[i, 'days_since_last_is_cancel'] = subtract_dates(sequence.loc[i, 'transaction_date'],
-                                                                                  sequence.loc[
-                                                                                      i, 'temp_date'])
-
-        sequence = sequence.drop(columns=['temp_date'])
-        new_trans_df = new_trans_df.append(sequence, ignore_index=True)
-
-    return new_trans_df
-
-
-def subscription_ratio(trans_df, destination_path):
+# transactions
+def subscription_ratio(trans_df):
     users = trans_df.msno.unique()
     new_trans_df = pd.DataFrame()
     user_index = 0
@@ -158,68 +62,92 @@ def subscription_ratio(trans_df, destination_path):
         if user_index % 500 == 0:
             print('Number of completed users = %d' % user_index)
 
-    new_trans_df.to_csv(destination_path, index=False)
     return new_trans_df
 
 
-def extract_non_subscribed_rate(trans_df):
-    users = trans_df.msno.unique()
-    new_trans_df = pd.DataFrame()
-    user_index = 0
-    for user in users:
-        sequence = trans_df.loc[trans_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
-        for i in range(len(sequence)):
-            if i == 0:
-                non_subscribed_rate = 0
-            else:
-                non_subscribed_rate = subtract_dates(sequence.loc[i, 'transaction_date'],
-                                                     sequence.loc[i - 1, 'membership_expire_date']) / subtract_dates(
-                    sequence.loc[i, 'membership_expire_date'], sequence.loc[i - 1, 'membership_expire_date'])
-
-            sequence.loc[i, 'non_subscribed_rate'] = non_subscribed_rate
-
-        new_trans_df = new_trans_df.append(sequence, ignore_index=True)
-
-        user_index += 1
-        if user_index % 500 == 0:
-            print('Number of completed users = %d' % user_index)
-
-    # new_trans_df.to_csv(destination_path, index=False)
-    return new_trans_df
-
-
-def extract_cancellation_rate(trans_df):
+def extract_features_of_transactions(trans_df, members_df):
+    trans_df = trans_df[trans_df['transaction_date'] <= trans_df['membership_expire_date']]
+    members_df = intersect(members_df, trans_df, 'msno')
+    trans_df = intersect(trans_df, members_df, 'msno')
     users = trans_df.msno.unique()
     new_trans_df = pd.DataFrame()
     user_index = 0
     for user in users:
         is_cancel_count = 0
+        is_cancel_seen = False
         sequence = trans_df.loc[trans_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
+        member_data = members_df.loc[members_df['msno'] == user].reset_index(drop=True)
         for i in range(len(sequence)):
+
+            # non_subscribed_rate ________________________________________________
+            if i == 0:
+                non_subscribed_rate = 0
+            else:
+                if sequence.loc[i, 'transaction_date'] <= sequence.loc[i - 1, 'membership_expire_date']:
+                    non_subscribed_rate = 0
+                else:
+                    non_subscribed_rate = \
+                        subtract_dates(sequence.loc[i, 'transaction_date'],
+                                       sequence.loc[i - 1, 'membership_expire_date']) / \
+                        subtract_dates(sequence.loc[i, 'membership_expire_date'],
+                                       sequence.loc[i - 1, 'membership_expire_date'])
+
+            sequence.loc[i, 'non_subscribed_rate'] = non_subscribed_rate
+
+            # cancellation_rate ___________________________________________________
             if sequence.loc[i, 'is_cancel'] == 1:
                 is_cancel_count += 1
             sequence.loc[i, 'cancellation_rate'] = float(is_cancel_count) / (i + 1)
 
+            # days_since_last_cancellation _________________________________________
+            if (sequence.loc[i, 'is_cancel'] == 1) and (is_cancel_seen is False):
+                sequence.loc[i, 'days_since_last_cancellation'] = math.nan
+                is_cancel_seen = True
+                sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
+            elif (sequence.loc[i, 'is_cancel'] == 1) and (is_cancel_seen is True):
+                sequence.loc[i, 'days_since_last_cancellation'] = subtract_dates(sequence.loc[i, 'transaction_date'],
+                                                                                 sequence.loc[
+                                                                                     i - 1, 'temp_date'])
+                sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
+            elif sequence.loc[i, 'is_cancel'] == 0:
+                if i == 0:
+                    sequence.loc[i, 'temp_date'] = sequence.loc[i, 'transaction_date']
+                    sequence.loc[i, 'days_since_last_cancellation'] = subtract_dates(
+                        sequence.loc[i, 'transaction_date'],
+                        sequence.loc[
+                            i, 'temp_date'])
+                else:
+                    sequence.loc[i, 'temp_date'] = sequence.loc[i - 1, 'temp_date']
+                    sequence.loc[i, 'days_since_last_cancellation'] = subtract_dates(
+                        sequence.loc[i, 'transaction_date'],
+                        sequence.loc[
+                            i, 'temp_date'])
+
+            # avg_time_between_trans _______________________________________________
+            if i == 0:
+                sequence.loc[i, 'avg_time_between_trans'] = 0
+            else:
+                sequence.loc[i, 'avg_time_between_trans'] = ((subtract_dates(sequence.loc[i, 'transaction_date'],
+                                                                             sequence.loc[
+                                                                                 i - 1, 'transaction_date']) + (
+                                                                      sequence.loc[i - 1, 'avg_time_between_trans'] * (
+                                                                      i - 1))) / i)
+
+            # days_since_registration
+            sequence.loc[i, 'days_since_registration'] = subtract_dates(sequence.loc[i, 'transaction_date'],
+                                                                        member_data.loc[0, :]['registration_init_time'])
+
+        sequence = sequence.drop(columns=['temp_date'])
         new_trans_df = new_trans_df.append(sequence, ignore_index=True)
 
         user_index += 1
         if user_index % 500 == 0:
             print('Number of completed users = %d' % user_index)
 
-        # new_trans_df.to_csv(destination_path, index=False)
     return new_trans_df
 
 
-# I think no need!
-def total_num_of_cancellations(input_df):
-    users = input_df.msno.unique()
-    user_index = 0
-    for user in users:
-        sequence = input_df.loc[input_df['msno'] == user].sort_values('transaction_date').reset_index(drop=True)
-        df = pd.DataFrame([{'msno': user}])
-        df['total_cancellations'] = sequence['is_cancel'].sum()
-
-
+# logs
 def extract_features_of_logs(input_df, start_date, destination_path):
     users = input_df.msno.unique()
     user_index = 0
@@ -324,9 +252,35 @@ def extract_static_data_of_logs(input_df, destination_path):
             print('Number of completed users = %d' % user_index)
 
 
+def extract_days_since_registration(logs_df, members_df):
+    members_df = intersect(members_df, logs_df, 'msno')
+    logs_df = intersect(logs_df, members_df, 'msno')
+    users = logs_df.msno.unique()
+    new_logs_df = pd.DataFrame()
+    user_index = 0
+    for user in users:
+        sequence = logs_df.loc[logs_df['msno'] == user].sort_values('date').reset_index(drop=True)
+        member_data = members_df.loc[members_df['msno'] == user].reset_index(drop=True)
+        for i in range(len(sequence)):
+            sequence.loc[i, 'days_since_registration'] = subtract_dates(sequence.loc[i, 'date'],
+                                                                        member_data.loc[0, 'registration_init_time'])
+
+        new_logs_df = new_logs_df.append(sequence, ignore_index=True)
+
+        user_index += 1
+        if user_index % 500 == 0:
+            print('Number of completed users = %d' % user_index)
+
+    return new_logs_df
+
+
+# members_path = 'new_data/selected2/test_members.csv'
+# members_data_frame = get_data_frame(members_path)
+# print("Members data frame is ready.")
+
 # logs
 
-# logs = 'new_data/selected2/train_logs.csv'
+# logs = 'new_data/selected2/test_logs_with_extracted_features.csv'
 # logs_data_frame: pd.DataFrame = get_data_frame(logs)
 # print("Logs data frame is ready.")
 
@@ -335,31 +289,19 @@ def extract_static_data_of_logs(input_df, destination_path):
 
 # extract_static_data_of_logs(data_frame, destination_path='new_data/selected2/test_logs_static_data.csv')
 
-# members_path = 'new_data/selected2/train_members.csv'
-# # members_path = 'data/members.csv'
-# members_data_frame = get_data_frame(members_path)
-# print("Members data frame is ready.")
 
 # transactions
 
-transactions_path = 'new_data/selected2/train_transactions.csv'
-trans_data_frame: pd.DataFrame = get_data_frame(transactions_path)
-print("Transactions data frame is ready.")
+# transactions_path = 'new_data/selected2/test_transactions_extracted_features.csv'
+# trans_data_frame: pd.DataFrame = get_data_frame(transactions_path)
+# print("Transactions data frame is ready.")
 
-# extract_avg_time_between_trans(input_df=data_frame,
-#                                  destination_path='new_data/selected2/test_transactions_with_extracted_features.csv')
+# new_transactions = extract_features_of_transactions(trans_data_frame, members_data_frame)
+# new_transactions.to_csv('new_data/selected2/test_transactions_extracted_features.csv', index=False)
 
 
-# total_num_of_cancellations(data_frame)
+# new_logs = extract_days_since_registration(logs_data_frame, members_data_frame)
+# new_logs.to_csv('new_data/selected2/test_logs_extracted_features.csv', index=False)
 
-# new_trans_data_frame, new_logs_data_frame = extract_days_since_registration(trans_df=trans_data_frame,
-#                                                                             members_df=members_data_frame,
-#                                                                             logs_df=logs_data_frame)
-
-# extract_days_since_last_cancellation(trans_data_frame)
-
-# new_trans = subscription_ratio(trans_data_frame,
-#                                destination_path='new_data/selected2/test_transactions_static.csv')
-
-# new_trans = extract_non_subscribed_rate(trans_data_frame)
-# new_trans = extract_cancellation_rate(trans_data_frame)
+# new_transactions = subscription_ratio(trans_data_frame)
+# new_transactions.to_csv('new_data/selected2/test_transactions_static.csv')
