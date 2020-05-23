@@ -7,6 +7,9 @@ def preprocess_transactions(train_path, test_path):
     test_trans = pd.read_csv(test_path)
     data = pd.concat([train_trans, test_trans], ignore_index=True)
 
+    # days_since_last_cancellation NAN -> 1
+    data[['days_since_last_cancellation']] = data[['days_since_last_cancellation']].fillna(1)
+
     # filling missing values with 0
     data = data.fillna(0)
 
@@ -14,10 +17,12 @@ def preprocess_transactions(train_path, test_path):
     data[['payment_plan_days',
           'plan_list_price',
           'actual_amount_paid',
-          'avg_time_between_trans']] = preprocessing.normalize(data[['payment_plan_days',
-                                                                     'plan_list_price',
-                                                                     'actual_amount_paid',
-                                                                     'avg_time_between_trans']], axis=0)
+          'avg_time_between_trans',
+          'days_since_registration']] = preprocessing.normalize(data[['payment_plan_days',
+                                                                      'plan_list_price',
+                                                                      'actual_amount_paid',
+                                                                      'avg_time_between_trans',
+                                                                      'days_since_registration']], axis=0)
 
     # one hot encoding
     data = pd.get_dummies(data, columns=["payment_method_id"], prefix=["payment_method"])
@@ -26,10 +31,10 @@ def preprocess_transactions(train_path, test_path):
     test_trans_normalized = data[len(train_trans):]
 
     train_trans_normalized.to_csv(
-        'new_data/selected2/new_normalization/train_transactions_with_extracted_features_preprocessed.csv',
+        'new_data/selected2/extra_features/train_transactions_extracted_features_preprocessed.csv',
         index=False)
     test_trans_normalized.to_csv(
-        'new_data/selected2/new_normalization/test_transactions_with_extracted_features_preprocessed.csv',
+        'new_data/selected2/extra_features/test_transactions_extracted_features_preprocessed.csv',
         index=False)
 
     return train_trans_normalized, test_trans_normalized
@@ -55,26 +60,28 @@ def preprocess_logs(train_path, test_path):
           'days_since_last_log_of_50',
           'days_since_last_log_of_75',
           'days_since_last_log_of_985',
-          'days_since_last_log_of_100']] = preprocessing.normalize(data[['num_25',
-                                                                         'num_50',
-                                                                         'num_75',
-                                                                         'num_985',
-                                                                         'num_100',
-                                                                         'num_unq',
-                                                                         'total_secs',
-                                                                         'days_since_last_log_of_25',
-                                                                         'days_since_last_log_of_50',
-                                                                         'days_since_last_log_of_75',
-                                                                         'days_since_last_log_of_985',
-                                                                         'days_since_last_log_of_100']], axis=0)
+          'days_since_last_log_of_100',
+          'days_since_registration']] = preprocessing.normalize(data[['num_25',
+                                                                      'num_50',
+                                                                      'num_75',
+                                                                      'num_985',
+                                                                      'num_100',
+                                                                      'num_unq',
+                                                                      'total_secs',
+                                                                      'days_since_last_log_of_25',
+                                                                      'days_since_last_log_of_50',
+                                                                      'days_since_last_log_of_75',
+                                                                      'days_since_last_log_of_985',
+                                                                      'days_since_last_log_of_100',
+                                                                      'days_since_registration']], axis=0)
 
     train_logs_normalized = data[0:len(train_logs)]
     test_logs_normalized = data[len(train_logs):]
 
     train_logs_normalized.to_csv(
-        'new_data/selected2/new_normalization/train_logs_with_extracted_features_preprocessed.csv', index=False)
+        'new_data/selected2/extra_features/train_logs_extracted_features_preprocessed.csv', index=False)
     test_logs_normalized.to_csv(
-        'new_data/selected2/new_normalization/test_logs_with_extracted_features_preprocessed.csv', index=False)
+        'new_data/selected2/extra_features/test_logs_extracted_features_preprocessed.csv', index=False)
     return train_logs_normalized, test_logs_normalized
 
 
@@ -105,12 +112,11 @@ def preprocess_members(data_path):
     data.to_csv('data/members_age_filtered_preprocessed.csv', index=False)
     return data
 
-# preprocess_logs(train_path='new_data/selected2/train_logs_with_extracted_features.csv',
-#                 test_path='new_data/selected2/test_logs_with_extracted_features.csv')
+
+# preprocess_logs(train_path='new_data/selected2/extra_features/train_logs_extracted_features.csv',
+#                 test_path='new_data/selected2/extra_features/test_logs_extracted_features.csv')
 
 # preprocess_members(data_path='data/members.csv')
 
-# preprocess_transactions(train_path='new_data/selected2/train_transactions_with_extracted_features.csv',
-#                         test_path='new_data/selected2/test_transactions_with_extracted_features.csv')
-
-
+# preprocess_transactions(train_path='new_data/selected2/extra_features/train_transactions_extracted_features.csv',
+#                         test_path='new_data/selected2/extra_features/test_transactions_extracted_features.csv')
