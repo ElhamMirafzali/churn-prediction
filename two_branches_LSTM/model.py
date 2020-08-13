@@ -5,7 +5,8 @@ import torch.nn.functional as F
 
 class TwoBranchesLSTMModel(nn.Module):
 
-    def __init__(self, input_size_x1, input_size_x2, output_size, hidden_dim_lstm, num_layers, fc1_units, fc2_units,
+    def __init__(self, input_size_x1, input_size_x2, input_size_x3, output_size, hidden_dim_lstm, num_layers,
+                 fc0_units, fc1_units, fc2_units,
                  batch_size, dropout):
         super(TwoBranchesLSTMModel, self).__init__()
         self.output_size = output_size
@@ -29,41 +30,44 @@ class TwoBranchesLSTMModel(nn.Module):
         self.hidden_state1, self.cell_state1 = self.init_hidden(batch_size=batch_size)
         self.hidden_state2, self.cell_state2 = self.init_hidden(batch_size=batch_size)
         # self.dropout = nn.Dropout(dropout)
-        self.fc1 = nn.Linear(64, fc1_units)
+        self.fc0 = nn.Linear(input_size_x3, fc0_units)
+        self.fc1 = nn.Linear(32*3, fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, output_size)
+        self.relu = nn.ReLU()
+        self.tanh = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x1, x2):
+    def forward(self, x1, x2, x3):
         # print("x shape = ", x.shape)
-        out_lstm1, hidden1 = self.lstm1(x1, (self.hidden_state1, self.cell_state1))
+        lstm1_out, hidden1 = self.lstm1(x1)
         self.hidden_state1 = hidden1[0].detach()
         self.cell_state1 = hidden1[1].detach()
         # lstm_out = lstm_out.contiguous().view(-1, self.hidden_dim)
         # out = self.dropout(lstm_out)
 
-        out_lstm2, hidden2 = self.lstm2(x2, (self.hidden_state2, self.cell_state2))
+        lstm2_out, hidden2 = self.lstm2(x2)
         self.hidden_state2 = hidden2[0].detach()
         self.cell_state2 = hidden2[1].detach()
 
-        # print("lstm1_out = ", out_lstm1.shape)
-        # print("lstm2_out = ", out_lstm2.shape)
+        fc0_out = self.fc0(x3)
 
-        concat_hidden = torch.cat(tensors=[out_lstm1[:, -1, :], out_lstm2[:, -1, :]], dim=1)
+        # print("lstm1_out.shape = ", lstm1_out.shape)
+        # print("lstm2_out.shape = ", lstm2_out.shape)
+        # print("members = ", x3)
+        # print("fc0_out.shape = ", fc0_out.shape)
+
+        concat_hidden = torch.cat(tensors=[lstm1_out[:, -1, :], lstm2_out[:, -1, :], fc0_out[:, -1, :]], dim=1)
+        # print("concat_hidden.shape = ", concat_hidden.shape)
 
         # h2_t_1 = torch.unsqueeze(self.hidden_state1[1, 0, -1], 0)
         # h2_t_2 = torch.unsqueeze(self.hidden_state2[1, 0, -1], 0)
         # concat_hidden = torch.cat(tensors=[h2_t_1, h2_t_2], dim=0)
 
-        # print("self.concat_hidden.shape = ", concat_hidden.shape)
-
-        # out_fc1 = F.relu(self.fc1(concat_hidden))
-        # out_fc2 = F.relu(self.fc2(out_fc1))
-        # out_fc3 = F.relu(self.fc3(out_fc2))
-        out_fc1 = self.fc1(concat_hidden)
-        out_fc2 = self.fc2(out_fc1)
-        out_fc3 = self.fc3(out_fc2)
-        out = self.sigmoid(out_fc3)
+        fc1_out = self.tanh(self.fc1(concat_hidden))
+        fc2_out = self.tanh(self.fc2(fc1_out))
+        fc3_out = self.tanh(self.fc3(fc2_out))
+        out = self.sigmoid(fc3_out)
 
         # apply sigmoid function to fc_out to get the probability
         # out = self.sigmoid(fc_out)

@@ -2,7 +2,13 @@
 /data1/
 /.spyproject/
 /.idea
-/trained_models/
 /__pycache__/
 /data_split/
 /balanced_data_split/
+/dataset/
+/labeler/
+/y_percentage.py
+/new_data/
+/one_branch_LSTM/__pycache__/
+*.py[cod]
+*$py.class
