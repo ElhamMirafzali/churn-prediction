@@ -104,6 +104,17 @@ def find_members(members_path, users_path, destination_path):
 
 # find_members(members_path='data/members_preprocessed.csv', users_path='new_data/selected2/train_labels.csv',
 #              destination_path='new_data/selected2/train_members.csv')
+
+#####################################################################
+# STATIC DATA
+#####################################################################
+# train_members = pd.read_csv('new_data/selected2/test_members.csv')
+# train_static_trans = pd.read_csv('new_data/selected2/extra_features/test_transactions_static.csv')
+# train_static_logs = pd.read_csv('new_data/selected2/extra_features/test_logs_static.csv')
+#
+# train_static = pd.merge(train_members, train_static_logs, on='msno')
+# train_static = pd.merge(train_static, train_static_trans, on='msno')
+# train_static.to_csv('new_data/selected2/extra_features/test_static.csv', index=False)
 #####################################################################
 
 # ------------------------ combine two transactions data
@@ -361,3 +372,20 @@ def find_members(members_path, users_path, destination_path):
 #                      destination_path='balanced_data_split/train_labels_selected.csv')
 
 ############################################################
+# static = pd.read_csv('new_data/selected2/extra_features/train_static_preprocessed.csv')
+# static = static[static.columns.difference(['num_25_sum',
+#                                            'num_50_sum',
+#                                            'num_75_sum',
+#                                            'num_985_sum',
+#                                            'num_100_sum',
+#                                            'num_unq_sum',
+#                                            'total_secs_sum',
+#                                            'num_25_max',
+#                                            'num_50_max',
+#                                            'num_75_max',
+#                                            'num_985_max',
+#                                            'num_100_max',
+#                                            'num_unq_max',
+#                                            'total_secs_max'])]
+#
+# static.to_csv('new_data/selected2/extra_features/train_static_preprocessed_reduced.csv', index=False)

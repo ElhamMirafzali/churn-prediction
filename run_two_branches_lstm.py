@@ -10,7 +10,7 @@ from calculate_metrics import calculate_metrics
 
 input_size_transactions = 33
 input_size_logs = 12
-input_size_members = 41
+input_size_static = 41
 output_size = 1
 hidden_dim_lstm = 32
 fc0_units = 32
@@ -59,7 +59,7 @@ test_data_loader: data.DataLoader = data.DataLoader(dataset=test_dataset,
 
 model = TwoBranchesLSTMModel(input_size_x1=input_size_transactions,
                              input_size_x2=input_size_logs,
-                             input_size_x3=input_size_members,
+                             input_size_x3=input_size_static,
                              output_size=output_size,
                              hidden_dim_lstm=hidden_dim_lstm,
                              num_layers=num_layers_lstm,
@@ -75,7 +75,7 @@ print_every = 1000
 
 # loss function = binary cross entropy
 criterion = nn.BCELoss()
-# optimizer = optim.Adam(params=model.parameters(), lr=lr)
+optimizer = optim.Adam(params=model.parameters(), lr=lr)
 #
 # model.train()
 #
@@ -150,7 +150,7 @@ criterion = nn.BCELoss()
 #
 # torch.save(model.state_dict(), "trained_models/LSTM_model.pt")
 # print('Trained Model Saved')
-
+#
 print('\n Testing...')
 model.load_state_dict(torch.load("trained_models/LSTM_model.pt"))
 model.eval()

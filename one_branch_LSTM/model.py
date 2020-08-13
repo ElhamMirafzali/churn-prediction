@@ -39,7 +39,7 @@ class OneBranchLSTMModel(nn.Module):
         fc3_out = self.tanh(self.fc3(fc2_out))
         # fc1_out = self.fc1(lstm_out)
         # fc2_out = self.fc2(fc1_out)
-        # fc3_out = self.fc3(fc2_out)
+        # fc3_out = self.fc3(lstm_out)
         out = self.sigmoid(fc3_out)
         return out[:, -1, :], hidden
 

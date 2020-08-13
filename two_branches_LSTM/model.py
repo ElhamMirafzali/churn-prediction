@@ -31,7 +31,7 @@ class TwoBranchesLSTMModel(nn.Module):
         self.hidden_state2, self.cell_state2 = self.init_hidden(batch_size=batch_size)
         # self.dropout = nn.Dropout(dropout)
         self.fc0 = nn.Linear(input_size_x3, fc0_units)
-        self.fc1 = nn.Linear(32 * 3, fc1_units)
+        self.fc1 = nn.Linear(32*3, fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, output_size)
         self.relu = nn.ReLU()
@@ -63,8 +63,6 @@ class TwoBranchesLSTMModel(nn.Module):
         # h2_t_1 = torch.unsqueeze(self.hidden_state1[1, 0, -1], 0)
         # h2_t_2 = torch.unsqueeze(self.hidden_state2[1, 0, -1], 0)
         # concat_hidden = torch.cat(tensors=[h2_t_1, h2_t_2], dim=0)
-
-
 
         fc1_out = self.tanh(self.fc1(concat_hidden))
         fc2_out = self.tanh(self.fc2(fc1_out))

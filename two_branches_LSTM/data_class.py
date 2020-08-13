@@ -24,6 +24,8 @@ class SequentialDataset(Dataset):
         data_trans.reset_index(drop=True, inplace=True)
         # 'msno', 'transaction_date', 'membership_expire_date' are removed
         data_trans = data_trans[data_trans.columns.difference(['msno', 'transaction_date', 'membership_expire_date'])]
+        data_trans = data_trans[data_trans.columns.difference(
+            ['days_since_registration', 'non_subscribed_rate'])]
         tensor_trans = torch.tensor(data=data_trans.values, dtype=torch.double)
 
         # logs
@@ -31,6 +33,7 @@ class SequentialDataset(Dataset):
         data_logs = data_logs.sort_values('date')
         data_logs.reset_index(drop=True, inplace=True)
         data_logs = data_logs[data_logs.columns.difference(['msno', 'date'])]
+        data_logs = data_logs[data_logs.columns.difference(['msno', 'date', 'days_since_registration'])]
         tensor_logs = torch.tensor(data=data_logs.values, dtype=torch.double)
 
         # members

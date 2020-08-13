@@ -1,5 +1,4 @@
 import math
-
 import pandas as pd
 import numpy as np
 import os
@@ -274,9 +273,10 @@ def extract_days_since_registration(logs_df, members_df):
     return new_logs_df
 
 
-# members_path = 'new_data/selected2/test_members.csv'
-# members_data_frame = get_data_frame(members_path)
-# print("Members data frame is ready.")
+members_path = 'new_data/selected2/train_members.csv'
+# members_path = 'data/members.csv'
+members_data_frame = get_data_frame(members_path)
+print("Members data frame is ready.")
 
 # logs
 
@@ -292,11 +292,12 @@ def extract_days_since_registration(logs_df, members_df):
 
 # transactions
 
-# transactions_path = 'new_data/selected2/extra_features/train_transactions_extracted_features.csv'
-# trans_data_frame: pd.DataFrame = get_data_frame(transactions_path)
-# print("Transactions data frame is ready.")
+transactions_path = 'new_data/selected2/extra_features/train_transactions_extracted_features.csv'
+# transactions_path = 'data_split/train_transactions.csv'
+trans_data_frame: pd.DataFrame = get_data_frame(transactions_path)
+print("Transactions data frame is ready.")
 
-# new_transactions = extract_features_of_transactions(trans_data_frame, members_data_frame)
+new_transactions = extract_features_of_transactions(trans_data_frame, members_data_frame)
 # new_transactions.to_csv('new_data/selected2/test_transactions_extracted_features.csv', index=False)
 
 
