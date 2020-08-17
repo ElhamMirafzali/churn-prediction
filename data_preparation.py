@@ -126,17 +126,17 @@ def find_members(members_path, users_path, destination_path):
 ############################################################
 # ------------------------ find transactions in range
 
-# transactions_in_range(source_path='new_data/transactions_all.csv', lower_bound=20170201,
+# transactions_in_range(source_path='data/transactions_all.csv', lower_bound=20170201,
 #                       upper_bound=20170228,
-#                       destination_path='new_data/transactions(membership_expires_in_feb).csv')
+#                       destination_path='data/transactions(membership_expires_in_feb).csv')
 
-# transactions_in_range(source_path='new_data/transactions_all.csv', lower_bound=20170101,
-#                       upper_bound=20170131,
-#                       destination_path='new_data/transactions(membership_expires_in_january).csv')
+# transactions_in_range(source_path='data/transactions_all.csv', lower_bound=20170301,
+#                       upper_bound=20170331,
+#                       destination_path='data/transactions(membership_expires_in_march).csv')
 
 ############################################################
 # ------------------------ intersect of train.csv and transactions(membership_expires_in_feb).csv and logs_jan.csv
-# train_total_labels = pd.read_csv('new_data/train.csv')
+# train_total_labels = pd.read_csv('data/train.csv')
 # trans_membership_expires_in_jan = pd.read_csv('new_data/transactions(membership_expires_in_feb).csv')
 # train_labels = common_column(df1=train_total_labels, df2=trans_membership_expires_in_jan, col="msno")
 # logs = pd.read_csv('new_data/logs_feb.csv')
@@ -342,8 +342,8 @@ def find_members(members_path, users_path, destination_path):
 
 #############################################################
 
-# select_logs_in_range(source_path='new_data/user_logs_all.csv', lower_bound=20161201, upper_bound=20161231,
-#                      destination_path='new_data/logs_december2016.csv')
+# select_logs_in_range(source_path='data/user_logs_all.csv', lower_bound=20170101, upper_bound=20170331,
+#                      destination_path='data/test_logs_jan2017_to_march2017.csv')
 # select_logs_in_range(source_path='new_data/user_logs_all.csv', lower_bound=20170101, upper_bound=20170131,
 #                      destination_path='new_data/logs_jan.csv')
 # select_logs_in_range(source_path='new_data/user_logs_all.csv', lower_bound=20170201, upper_bound=20170228,
