@@ -88,9 +88,6 @@ def preprocess_logs(train_path, test_path):
 def preprocess_members(data_path):
     data = pd.read_csv(data_path)
 
-    data = data[data.bd < 200]
-    data = data[data.bd >= 0]
-
     # Label Encoding (categorical to numeric)
     data['gender'] = data['gender'].astype('category')
     data['gender'] = data['gender'].cat.codes
