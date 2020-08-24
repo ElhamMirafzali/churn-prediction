@@ -1,4 +1,5 @@
 import statistics
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -7,10 +8,15 @@ import pandas as pd
 from two_branches_LSTM.model import TwoBranchesLSTMModel
 from two_branches_LSTM.data_class import SequentialDataset
 from calculate_metrics import calculate_metrics
+import draw_plots
 
-input_size_transactions = 33
-input_size_logs = 12
-input_size_static = 41
+# input_size_transactions = 33
+# input_size_logs = 12
+# input_size_static = 41
+input_size_transactions = 32
+input_size_logs = 7
+input_size_static = 28
+
 output_size = 1
 hidden_dim_lstm = 32
 fc0_units = 32
@@ -21,23 +27,45 @@ num_layers_lstm = 2
 dropout = 0.1
 batch_size = 1
 
+
+def print_time():
+    t = time.localtime()
+    current_time = time.strftime("%H:%M:%S", t)
+    print(current_time)
+
+
+print_time()  # 19:19:02
+
 # transactions
 # train_transactions = pd.read_csv(
 #     'new_data/selected2/new_normalization/train_transactions_with_extracted_features_preprocessed.csv')
+# test_transactions = pd.read_csv(
+#     'new_data/selected2/new_normalization/test_transactions_with_extracted_features_preprocessed.csv')
+# train_transactions = pd.read_csv(
+#     'data/train_selected/without_extra_features/train_transactions_preprocessed.csv')
 test_transactions = pd.read_csv(
-    'new_data/selected2/new_normalization/test_transactions_with_extracted_features_preprocessed.csv')
+    'data/test_selected/without_extra_features/test_transactions_preprocessed.csv')
 
 # logs
 # train_logs = pd.read_csv('new_data/selected2/new_normalization/train_logs_with_extracted_features_preprocessed.csv')
-test_logs = pd.read_csv('new_data/selected2/new_normalization/test_logs_with_extracted_features_preprocessed.csv')
+# test_logs = pd.read_csv('new_data/selected2/new_normalization/test_logs_with_extracted_features_preprocessed.csv')
+# train_logs = pd.read_csv('data/train_selected/without_extra_features/train_logs_preprocessed.csv')
+test_logs = pd.read_csv('data/test_selected/without_extra_features/test_logs_preprocessed.csv')
 
 # members
 # train_members = pd.read_csv('new_data/selected2/train_members.csv')
-test_members = pd.read_csv('new_data/selected2/test_members.csv')
+# test_members = pd.read_csv('new_data/selected2/test_members.csv')
+# train_members = pd.read_csv('data/train_selected/without_extra_features/train_members_preprocessed.csv')
+test_members = pd.read_csv('data/test_selected/without_extra_features/test_members_preprocessed.csv')
 
 # targets
 # train_targets = pd.read_csv('new_data/selected2/train_labels.csv')
-test_targets = pd.read_csv('new_data/selected2/test_labels.csv')
+# test_targets = pd.read_csv('new_data/selected2/test_labels.csv')
+
+train_targets = pd.read_csv('data/train_selected/train_labels_selected_plus_trans_count_above_3.csv')
+test_targets = pd.read_csv('data/test_selected/test_labels_selected_plus_trans_count_above_3.csv')
+# test_targets = (test_targets.loc[7000:9000, :])
+# test_targets.reset_index(drop=True, inplace=True)
 
 # train_dataset = SequentialDataset(transactions=train_transactions,
 #                                   logs=train_logs,
@@ -47,7 +75,7 @@ test_targets = pd.read_csv('new_data/selected2/test_labels.csv')
 test_dataset = SequentialDataset(transactions=test_transactions,
                                  logs=test_logs,
                                  members=test_members,
-                                 targets=test_targets.loc[0:9000, :])
+                                 targets=test_targets)
 
 # train_data_loader: data.DataLoader = data.DataLoader(dataset=train_dataset,
 #                                                      batch_size=batch_size,
@@ -76,7 +104,7 @@ print_every = 1000
 # loss function = binary cross entropy
 criterion = nn.BCELoss()
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
-#
+
 # model.train()
 #
 # total_loss = []
@@ -134,15 +162,20 @@ optimizer = optim.Adam(params=model.parameters(), lr=lr)
 #     total_loss.append((epoch_loss / len(train_data_loader)))
 #
 #     total_corrects += batch_corrects
-#     auc, pr_auc, average_precision, average_recall = calculate_metrics(targets=targets, predictions=predictions,
-#                                                                        bin_predictions=bin_predictions)
+#     auc, pr_auc, average_precision, average_recall, f1_score = calculate_metrics(targets=targets,
+#                                                                                  predictions=predictions,
+#                                                                                  bin_predictions=bin_predictions)
 #
 #     print('\nEpoch %d/%d, Accuracy: %.3f' % (epoch + 1, num_epochs, batch_corrects / len(train_data_loader)))
 #     print('\nEpoch %d/%d, Loss : %.7f' % (epoch + 1, num_epochs, (epoch_loss / len(train_data_loader))))
 #     print('\nEpoch %d/%d, AUC: %.3f' % (epoch + 1, num_epochs, auc))
 #     print('\nEpoch %d/%d, PR-AUC: %.3f' % (epoch + 1, num_epochs, pr_auc))
 #     print('\nEpoch %d/%d, Precision: %.3f' % (epoch + 1, num_epochs, average_precision))
-#     print('\nEpoch %d/%d, Recall: %.3f' % (epoch + 1, num_epochs, average_recall), '\n')
+#     print('\nEpoch %d/%d, Recall: %.3f' % (epoch + 1, num_epochs, average_recall))
+#     print('\nEpoch %d/%d, F1_SCORE: %.3f' % (epoch + 1, num_epochs, f1_score), '\n')
+#
+#     print_time()
+#     draw_plots.draw_curves(targets=targets, predictions=predictions)
 #
 # print('Finished Training')
 # print('\nTrain Loss : %.7f' % statistics.mean(total_loss))
@@ -150,7 +183,8 @@ optimizer = optim.Adam(params=model.parameters(), lr=lr)
 #
 # torch.save(model.state_dict(), "trained_models/LSTM_model.pt")
 # print('Trained Model Saved')
-#
+
+print_time()
 print('\n Testing...')
 model.load_state_dict(torch.load("trained_models/LSTM_model.pt"))
 model.eval()
@@ -193,12 +227,18 @@ for i, (trans_data, logs_data, members_data, target) in enumerate(test_data_load
     if predicted_label == target:
         total_corrects += 1
 
-auc, pr_auc, average_precision, average_recall = calculate_metrics(targets=targets, predictions=predictions,
-                                                                   bin_predictions=bin_predictions)
+auc, pr_auc, average_precision, average_recall, f1_score = calculate_metrics(targets=targets,
+                                                                             predictions=predictions,
+                                                                             bin_predictions=bin_predictions)
+
+print_time()
 print('Finished Testing')
 print('\nAccuracy: %.3f' % (total_corrects / len(test_data_loader)))
 print('\nAUC: %.3f' % auc)
 print('\nPR-AUC: %.3f' % pr_auc)
-print('\nPrecision: %.3f' % average_precision)
-print('\nRecall: %.3f' % average_recall)
+print('\nAverage Precision: %.3f' % average_precision)
+print('\nAverage Recall: %.3f' % average_recall)
 print('\nTest Loss : %.7f' % (total_test_loss / len(test_data_loader)))
+print('\nF1_SCORE: %.3f' % f1_score, '\n')
+
+draw_plots.draw_curves(targets=targets, predictions=predictions)

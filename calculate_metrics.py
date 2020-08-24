@@ -15,4 +15,7 @@ def calculate_metrics(targets, predictions, bin_predictions):
     # calculate recall
     average_recall = metrics.recall_score(targets, bin_predictions)
 
-    return auc, pr_auc, average_precision, average_recall
+    # calculate F1 score
+    f1 = metrics.f1_score(targets, bin_predictions)
+
+    return auc, pr_auc, average_precision, average_recall, f1
