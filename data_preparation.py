@@ -418,73 +418,101 @@ def find_members(members_path, users_path, destination_path):
 # intersect of train.csv, members, transactions, logs and update train.csv
 ################################################
 
-# user_labels = pd.read_csv('data/all_raw_data/train.csv')
+# user_labels = pd.read_csv('data/all_raw_data/test.csv')
 # members = pd.read_csv('data/all_raw_data/members_age_0_120.csv')
 # user_labels = common_column(df1=user_labels, df2=members, col="msno")
 #
-# transactions_path = 'data/all_raw_data/transactions(membership_expires_in_feb).csv'
+# transactions_path = 'data/all_raw_data/transactions(membership_expires_in_march).csv'
 # trans_df = pd.DataFrame()
 # for chunk in pd.read_csv(transactions_path, chunksize=100000):
 #     trans_df = trans_df.append(other=chunk)
 # user_labels = common_column(df1=user_labels, df2=trans_df, col="msno")
-# user_labels.to_csv('data/train_selected/train_labels_intersect_tmp.csv', index=False)
+# user_labels.to_csv('data/test_selected/test_labels_intersect_tmp.csv', index=False)
 
 # print_time()  # 19:24:27
-# user_labels = pd.read_csv('data/train_selected/train_labels_intersect_tmp.csv')
-# logs_path = 'data/all_raw_data/train_logs_dec2016_to_feb2017.csv'
+# user_labels = pd.read_csv('data/test_selected/test_labels_intersect_tmp.csv')
+# logs_path = 'data/all_raw_data/test_logs_jan2017_to_march2017.csv'
 # logs_df = pd.DataFrame()
 # for chunk in pd.read_csv(logs_path, chunksize=100000):
 #     users = pd.DataFrame()
 #     users['msno'] = chunk.msno.unique()
-#     if not os.path.isfile('data/train_selected/unique_users_of_train_logs_tmp.csv'):
-#         users.to_csv('data/train_selected/unique_users_of_train_logs_tmp.csv', index=False)
+#     if not os.path.isfile('data/test_selected/unique_users_of_test_logs_tmp.csv'):
+#         users.to_csv('data/test_selected/unique_users_of_test_logs_tmp.csv', index=False)
 #     else:
-#         users.to_csv('data/train_selected/unique_users_of_train_logs_tmp.csv', mode='a', index=False, header=False)
+#         users.to_csv('data/test_selected/unique_users_of_test_logs_tmp.csv', mode='a', index=False, header=False)
 #
 # print_time()  # 19:27:08
-# users = pd.read_csv('data/train_selected/unique_users_of_train_logs_tmp.csv')
+
+# users = pd.read_csv('data/test_selected/unique_users_of_test_logs_tmp.csv')
 # unique_users = pd.DataFrame()
 # unique_users['msno'] = users.msno.unique()
-# unique_users.to_csv('data/train_selected/unique_users_of_train_logs.csv', index=False)
+# unique_users.to_csv('data/test_selected/unique_users_of_test_logs.csv', index=False)
 
-# user_labels = pd.read_csv('data/train_selected/train_labels_intersect_tmp.csv')
-# unique_users_in_logs = pd.read_csv('data/train_selected/unique_users_of_train_logs.csv')
+# user_labels = pd.read_csv('data/test_selected/test_labels_intersect_tmp.csv')
+# unique_users_in_logs = pd.read_csv('data/test_selected/unique_users_of_test_logs.csv')
 # user_labels = common_column(df1=user_labels, df2=unique_users_in_logs, col="msno")
-# user_labels.to_csv('data/train_selected/train_labels_intersect.csv', index=False)
+# user_labels.to_csv('data/test_selected/test_labels_intersect.csv', index=False)
 
 ################################################
-# ratio of non_churn & churn (60%, 40%)
+# ratio of non_churn & churn (60%, 40%) for train & (70%, 30%) for test
 ################################################
 
 # targets = reduce_labels_dataset(labels_path='data/train_selected/train_labels_intersect.csv',
 #                                 churn_sample_fraction=0.6599, non_churn_sample_fraction=0.0367)
 # targets.to_csv(path_or_buf='data/train_selected/train_labels_selected.csv', index=False)
 
+
+# targets = reduce_labels_dataset(labels_path='data/test_selected/test_labels_intersect.csv',
+#                                 churn_sample_fraction=0.2342, non_churn_sample_fraction=0.0198)
+# targets.to_csv(path_or_buf='data/test_selected/test_labels_selected.csv', index=False)
+
 ################################################
 # find members, transactions, logs  of users
 ################################################
 
-# users_path = 'data/train_selected/train_labels_selected.csv'
-# members_path = 'data/all_raw_data/members_age_0_120.csv'
-# transactions_path = 'data/all_raw_data/transactions(membership_expires_in_feb).csv'
-# logs_path = 'data/all_raw_data/train_logs_dec2016_to_feb2017.csv'
+users_path = 'data/test_selected/test_labels_selected_plus_trans_count_above_3.csv'
+members_path = 'data/all_raw_data/members_age_0_120.csv'
+transactions_path = 'data/all_raw_data/transactions(membership_expires_in_march).csv'
+logs_path = 'data/all_raw_data/test_logs_jan2017_to_march2017.csv'
 # find_members(members_path=members_path,
 #              users_path=users_path,
-#              destination_path='data/train_selected/train_members.csv')
-#
+#              destination_path='data/test_selected/test_members.csv')
+
 # find_transactions(transactions_path=transactions_path,
 #                   users_path=users_path,
-#                   destination_path='data/train_selected/train_transactions(membership_expires_in_feb).csv')
-#
-# find_logs(logs_path=logs_path,
-#           users_path=users_path,
-#           destination_path='data/train_selected/train_logs_dec2016_to_feb2017.csv')
+#                   destination_path='data/test_selected/test_transactions(membership_expires_in_march).csv')
+
+find_logs(logs_path=logs_path,
+          users_path=users_path,
+          destination_path='data/test_selected/test_logs_jan2017_to_march2017.csv')
 
 ################################################
+# extract users with transactions count more than 3
+################################################
 
-# u, tr, lb = find_users_with_transaction_limit(labels_path='data/train_selected/train_labels_selected.csv',
-#                                               transactions_path='data/all_raw_data/transactions(membership_expires_in_feb).csv',
-#                                               transactions_count_limit=10)
+# u, tr, lb = find_users_with_transaction_limit(labels_path='data/test_selected/test_labels_intersect.csv',
+#                                               transactions_path='data/all_raw_data/transactions(membership_expires_in_march).csv',
+#                                               transactions_count_limit=3)
+
 # print(u.shape, tr.shape, lb.shape)
 # percentage = lb['is_churn'].value_counts(normalize=True) * 100
 # print("percentage = ", percentage)
+# lb.to_csv('data/test_selected/test_labels_with_transactions_count_limit_3.csv', index=False)
+
+################################################
+# union of two train_labels
+################################################
+
+# lb1 = pd.read_csv('data/test_selected/test_labels_selected.csv')
+# lb2 = pd.read_csv('data/test_selected/test_labels_with_transactions_count_limit_3.csv')
+# merged_lb = pd.concat([lb2, lb1], ignore_index=True, sort=False).drop_duplicates(keep='first', inplace=False)
+# merged_lb.to_csv('data/test_selected/test_labels_selected_plus_trans_count_above_3.csv')
+#
+# print(lb1.shape, lb2.shape, merged_lb.shape)
+# users = pd.DataFrame()
+# users['msno'] = merged_lb.msno.unique()
+# print(users.shape)
+# percentage = merged_lb['is_churn'].value_counts(normalize=True) * 100
+# print("percentage = ", percentage)
+
+################################################
