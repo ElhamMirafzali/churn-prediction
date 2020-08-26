@@ -1,23 +1,24 @@
 from sklearn import metrics
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 
 
-def draw_curves(targets, predictions):
+def draw_curves(targets, predictions, roc_save_path, pr_save_path):
     ##############################################################
     # calculate roc curve
     ##############################################################
     ns_probs = [0 for _ in range(len(targets))]
     ns_fpr, ns_tpr, _ = metrics.roc_curve(targets, ns_probs)
     lr_fpr, lr_tpr, _ = metrics.roc_curve(targets, predictions)
-    plt1 = pyplot.figure(1)
-    # plot the roc curve for the model
-    pyplot.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
-    pyplot.plot(lr_fpr, lr_tpr, marker='.', label='Proposed Model')
-    # axis labels
-    pyplot.xlabel('False Positive Rate')
-    pyplot.ylabel('True Positive Rate')
-    # show the legend
-    pyplot.legend()
+    plt.figure()
+    plt.title('ROC Curve')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill', color='b')
+    plt.plot(lr_fpr, lr_tpr, marker='.', label='Proposed Model', color='r')
+    plt.legend()
+    plt.savefig(roc_save_path)
+    plt.show()
+    plt.close()
 
     ##############################################################
     # calculate precision-recall curve
@@ -27,13 +28,13 @@ def draw_curves(targets, predictions):
     targets_count_one = targets.count(1.0)
     targets_len = len(targets)
     no_skill = targets_count_one / targets_len
-    plt2 = pyplot.figure(2)
-    pyplot.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
-    pyplot.plot(recall, precision, marker='.', label='Proposed Model')
-    # axis labels
-    pyplot.xlabel('Recall')
-    pyplot.ylabel('Precision')
-    # show the legend
-    pyplot.legend()
-
-    pyplot.show()
+    plt.figure()
+    plt.title('Precision-Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill', color='b')
+    plt.plot(recall, precision, marker='.', label='Proposed Model', color='r')
+    plt.legend()
+    plt.savefig(pr_save_path)
+    plt.show()
+    plt.close()
